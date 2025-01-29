@@ -124,7 +124,8 @@ class SQLRAG:
 
 if __name__ == "__main__":
     model = SQLRAG()
-    print("What is your question?")
-    question = input(">>> ")
-    model.prompt(question, print_results=True, verbose=True)
-    #model.prompt("What is the number of HIV infections in germany for each year and does it have a correlation with diabetes rates?", print_results=True)
+    while True:
+        print("What is your question?")
+        question = input(">>> ")
+        model.prompt(question, print_results=True)
+        print()
