@@ -6,6 +6,7 @@ from chromadb.utils.embedding_functions import DefaultEmbeddingFunction
 import ollama
 import re
 from tqdm import tqdm
+from pathlib import Path
 
 def pull_ollama_model(model, verbose=False):
     if not verbose: 
@@ -27,7 +28,7 @@ def pull_ollama_model(model, verbose=False):
         current_digest = digest
 
 def extract_sql(response, intermediate=False):
-    rules = [r"\bWITH\b .*?;", r"SELECT.*?;", r"```sql\n(.*)```", r"```(.*)```"]
+    rules = [r"\bWITH\b .*?;", r"SELECT.*?;", r"```sql\n(.*)```", r"```sqlite\n(.*)```", r"```(.*)```"]
     for rule in rules:
         if sqls := re.findall(rule, response, re.DOTALL): 
             return sqls[0] if intermediate else sqls[-1]
@@ -36,8 +37,11 @@ def extract_sql(response, intermediate=False):
 class SQLRAG:
     def __init__(self, ollama_model="phi4", db_path="data/gho.db", verbose_initalization=False):
         self.ollama_model = ollama_model
-        self.conn = sqlite3.connect(db_path)
+        if not Path(db_path).exists():
+            print("Please download indicators first (use download_indicators.ipynb)")
+            exit(-1)
 
+        self.conn = sqlite3.connect(db_path)
         embedding_func = DefaultEmbeddingFunction()
         chroma_client = chromadb.EphemeralClient(settings=Settings(anonymized_telemetry=False))
         self.table_collection = chroma_client.get_or_create_collection(name="tables", embedding_function=embedding_func)
