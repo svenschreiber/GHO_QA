@@ -127,5 +127,5 @@ if __name__ == "__main__":
     while True:
         print("What is your question?")
         question = input(">>> ")
-        model.prompt(question, print_results=True)
+        model.prompt(question, verbose=True, print_results=True)
         print()
